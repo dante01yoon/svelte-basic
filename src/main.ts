@@ -1,6 +1,6 @@
-import TodoList from "./TodoList.svelte";
+import App from "./App.svelte";
 
-const app = new TodoList({ target: document.body });
+const app = new App({ target: document.body });
 
 // export default는 필수
 export default app;
