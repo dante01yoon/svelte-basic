@@ -1,9 +1,12 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   import Item from "./Item.svelte";
   import { getGuid, blurOnKey, sortOnName } from "./util";
 
+  const dispatch = createEventDispatcher();
+
   export let categories;
-  export let cateogry;
+  export let category;
   export let show;
 
   let editing = false;
@@ -32,8 +35,15 @@
     items[id] = { id, name: itemName, packed: false };
     category.items = items;
     itemName = "";
+
+    dispatch("persist");
   }
 
+  function deleteItem(item) {
+    delete category.items[item.id];
+    category = category;
+    dispatch("persist");
+  }
   function shouldShow(show, item) {
     return (
       show === "all" ||
@@ -47,15 +57,15 @@
   <h3>
     {#if editing}
       <input
-        bind:value={cateogry.name}
+        bind:value={category.name}
         on:blur={() => (editing = false)}
         on:keypress={blurOnKey}
       />
     {:else}
-      <span on:click={() => (editing = true)}>{cateogry.name}</span>
+      <span on:click={() => (editing = true)}>{category.name}</span>
     {/if}
     <span class="status">{status}</span>
-    <button class="icon">&#x1F5D1</button>
+    <button class="icon" on:click={() => dispatch("delete")}>&#x1F5D1</button>
   </h3>
 
   <form on:submit|preventDefault={addItem}>
@@ -68,7 +78,7 @@
 
   <ul>
     {#each itemsToShow as item (item.id)}
-      <Item bind:item />
+      <Item bind:item on:delete={() => deleteItem(item)} />
     {:else}
       <div>This category does not contain any items yet.</div>
     {/each}
